@@ -1,0 +1,10 @@
+_model: page
+---
+title: More Detail
+---
+body: More detail could go here
+---
+redirect_from:
+
+info
+/details

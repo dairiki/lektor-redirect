@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+{% set location_abs = target|url(absolute=True) %}
+{% set location_ext = target|url(external=True) %}
+{% set location_rel = target|url %}
+{% block head_meta -%}
+  <link rel="canonical" href="{{ location_ext }}">
+  <meta http-equiv="refresh" content="0; url={{ location_abs }}">
+  <script type="text/javascript">
+   window.location.href = {{ location_abs|tojson }};
+  </script>
+{%- endblock %}
+
+{% block title %}Page Moved{% endblock %}
+{% block body %}
+  <h2>Page Moved</h2>
+  <p>
+    If you are not automatically redirected, the page you want can be found at
+    <a href="{{ location_rel }}">{{ location_ext }}</a>.
+  </p>
+{% endblock %}
