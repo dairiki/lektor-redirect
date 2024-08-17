@@ -24,7 +24,7 @@ DEFAULT_REDIRECT_FROM_FIELD = "redirect_from"
 
 
 class _VirtualSourceBase(VirtualSourceObject):
-    url_path = None             # override inherited property
+    url_path = None  # override inherited property
 
     def __init__(self, record, url_path):
         super().__init__(record)
@@ -32,10 +32,7 @@ class _VirtualSourceBase(VirtualSourceObject):
 
     @property
     def path(self):
-        return (
-            f"{self.record.path}"
-            f"@{self.VPATH_PREFIX}{self.url_path.rstrip('/')}"
-        )
+        return f"{self.record.path}" f"@{self.VPATH_PREFIX}{self.url_path.rstrip('/')}"
 
     def __eq__(self, other):
         if isinstance(other, _VirtualSourceBase):
@@ -54,9 +51,9 @@ class _VirtualSourceBase(VirtualSourceObject):
 
     @classmethod
     def _vpath_resolver(cls, record, pieces):
-        url_path = '/' + '/'.join(pieces)
-        if '.' not in pieces[-1]:
-            url_path += '/'
+        url_path = "/" + "/".join(pieces)
+        if "." not in pieces[-1]:
+            url_path += "/"
         return cls(record, url_path)
 
 
@@ -84,11 +81,11 @@ class RedirectMap(_VirtualSourceBase):
     def get_checksum(self, path_cache):
         h = hashlib.md5()
         for from_url, to_url in self.get_redirect_map():
-            h.update(f"{from_url}\0{to_url}\0".encode("utf-8"))
+            h.update(f"{from_url}\0{to_url}\0".encode())
         return h.hexdigest()
 
 
-HTML_EXTS = set(['.html', '.htm'])
+HTML_EXTS = {".html", ".htm"}
 
 
 class RedirectBuildProgram(BuildProgram):
@@ -96,10 +93,10 @@ class RedirectBuildProgram(BuildProgram):
         source = self.source
 
         artifact_name = source.url_path
-        if artifact_name.endswith('/'):
-            artifact_name += 'index.html'
+        if artifact_name.endswith("/"):
+            artifact_name += "index.html"
         elif posixpath.splitext(artifact_name)[1].lower() not in HTML_EXTS:
-            artifact_name += '/index.html'
+            artifact_name += "/index.html"
 
         sources = list(source.record.iter_source_filenames())
 
@@ -194,11 +191,11 @@ class RedirectIndex(Mapping):
 
 
 class RedirectPlugin(Plugin):
-    name = 'redirect'
-    description = u'Generate redirects to pages.'
+    name = "redirect"
+    description = "Generate redirects to pages."
 
     def __init__(self, env, id):
-        super(RedirectPlugin, self).__init__(env, id)
+        super().__init__(env, id)
         self._index_cache = weakref.WeakKeyDictionary()
 
     def get_index(self, pad):
@@ -210,19 +207,17 @@ class RedirectPlugin(Plugin):
     @property
     def redirect_from_field(self):
         inifile = self.get_config()
-        return inifile.get(
-            'redirect.redirect_from_field', DEFAULT_REDIRECT_FROM_FIELD
-        )
+        return inifile.get("redirect.redirect_from_field", DEFAULT_REDIRECT_FROM_FIELD)
 
     @property
     def redirect_template(self):
         inifile = self.get_config()
-        return inifile.get('redirect.template', DEFAULT_TEMPLATE)
+        return inifile.get("redirect.template", DEFAULT_TEMPLATE)
 
     @property
     def redirect_map_url(self):
         inifile = self.get_config()
-        map_file = inifile.get('redirect.map_file')
+        map_file = inifile.get("redirect.map_file")
         if map_file is None:
             return None
         p = Path(map_file)
@@ -234,9 +229,8 @@ class RedirectPlugin(Plugin):
 
         alts = env.load_config().list_alternatives()
         if alts:
-            raise RuntimeError(
-                "The lektor-redirect plugin currently does not support alts"
-            )
+            msg = "The lektor-redirect plugin currently does not support alts"
+            raise RuntimeError(msg)
 
         env.add_build_program(Redirect, RedirectBuildProgram)
         env.generator(self.generate_redirects)
@@ -251,7 +245,7 @@ class RedirectPlugin(Plugin):
 
     def generate_redirects(self, source):
         if not isinstance(source, Record):
-            return              # ignore assets
+            return  # ignore assets
 
         redirect_from_field = self.redirect_from_field
         index = self.get_index(source.pad)
@@ -277,7 +271,7 @@ class RedirectPlugin(Plugin):
         if _disable_redirect_resolution.get():
             return None
         index = self.get_index(record.pad)
-        url_path = normalize_url_path(record, '/'.join(url_path))
+        url_path = normalize_url_path(record, "/".join(url_path))
         target = index.get(url_path)
         if target is not None:
             return Redirect(target, url_path)
@@ -286,8 +280,7 @@ class RedirectPlugin(Plugin):
         return None
 
 
-def iter_redirect_urls(record,
-                       redirect_from_field=DEFAULT_REDIRECT_FROM_FIELD):
+def iter_redirect_urls(record, redirect_from_field=DEFAULT_REDIRECT_FROM_FIELD):
     """Iterate over all redirects requested by record.
 
     URL paths returned are normalized and absolute.
@@ -312,17 +305,15 @@ def normalize_url_path(record, url_path):
     of record.
 
     """
-    if not url_path.startswith('/'):
+    if not url_path.startswith("/"):
         url_path = posixpath.join(record.url_path, url_path)
     url_path = posixpath.normpath(url_path)
-    if '.' not in posixpath.basename(url_path):
-        url_path += '/'
+    if "." not in posixpath.basename(url_path):
+        url_path += "/"
     return url_path
 
 
-_disable_redirect_resolution = ContextVar(
-    "_disable_redirect_resolution", default=False
-)
+_disable_redirect_resolution = ContextVar("_disable_redirect_resolution", default=False)
 
 
 @contextmanager
@@ -371,8 +362,6 @@ def _nginx_escape(str):
             quot = "'"
 
     escaped = re.sub(
-        fr"[{quot}$\\]|\A(default|hostnames|include|volatile)\b",
-        r"\\\g<0>",
-        str
+        rf"[{quot}$\\]|\A(default|hostnames|include|volatile)\b", r"\\\g<0>", str
     )
     return f"{quot}{escaped}{quot}"
