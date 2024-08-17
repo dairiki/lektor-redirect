@@ -1,0 +1,19 @@
+[project]
+name = "lektor-redirect"
+version = "0.1.0"
+description = "A Lektor plugin to help with generating redirects for, e.g., moved pages."
+authors = [
+    {name = "Jeff Dairiki", email = "dairiki@dairiki.org"},
+]
+dependencies = []
+requires-python = ">=3.8"
+readme = "README.md"
+license = {text = "MIT"}
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+
+[tool.pdm]
+distribution = true
