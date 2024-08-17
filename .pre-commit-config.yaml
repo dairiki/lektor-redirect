@@ -1,0 +1,38 @@
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v4.6.0
+  hooks:
+    - id: check-yaml
+    - id: check-toml
+    - id: check-symlinks
+    - id: check-added-large-files
+    - id: check-vcs-permalinks
+    - id: debug-statements
+    - id: trailing-whitespace
+      exclude_types: ["image", "svg"]
+    - id: end-of-file-fixer
+    - id: mixed-line-ending
+
+- repo: https://github.com/pre-commit/pygrep-hooks
+  rev: 'v1.10.0'
+  hooks:
+    - id: python-check-blanket-noqa
+    - id: python-check-blanket-type-ignore
+    - id: python-use-type-annotations
+
+- repo: https://github.com/astral-sh/ruff-pre-commit
+  # Ruff version.
+  rev: v0.6.1
+  hooks:
+    # Run the linter.
+    - id: ruff
+      args: [--fix]
+    # Run the formatter.
+    - id: ruff-format
+
+- repo: https://github.com/pdm-project/pdm
+  rev: '2.18.1'
+  hooks:
+    - id: pdm-lock-check
