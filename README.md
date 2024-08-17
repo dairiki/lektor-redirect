@@ -3,9 +3,22 @@
 This plugin allows pages to specify alternative/old URLs which should
 redirect to their current location.
 
-Redirect pages are generated at the specified URLs.  The template for these
+## How it works
+
+There are two ways that redirects may be implemented by this plugin.
+Either or both may be enabled.
+
+### Redirect pages
+
+Redirect pages can be generated at the specified URLs.  The template for these
 pages is up to you, however the intent is that these pages will attempt
 an _meta refresh_ and/or javascript redirect to the target page.
+
+### Redirect map
+
+A _redirect map_ file can be generated.  This may be used to configure your
+webserver to issue the desired redirects itself.
+(Currently only an nginx-style map is supported.)
 
 ## Usage
 
@@ -33,3 +46,13 @@ There are currently to configurable settings.  Here are the defaults:
     [redirect]
     template = template.html
     redirect_from_field = redirect_from
+
+## Caveats
+
+Currently this plugin will not work on Lektor sites with [alts] enableds.
+
+[alts]: https://www.getlektor.com/docs/content/alts/
+
+## Author
+
+Jeff Dairiki <dairiki@dairiki.org>
