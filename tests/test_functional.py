@@ -38,3 +38,13 @@ def test_output_files(demo_output):
         "about/projects.html",
         "images/apple-cake.jpg/index.html",
     }
+
+
+def test_redirect_map(demo_output):
+    map_path = demo_output / ".redirect.map"
+    assert map_path.read_text() == (
+        "/about/info/ /about/more-detail/;\n"
+        "/about/projects.html /projects/;\n"
+        "/details/ /about/more-detail/;\n"
+        "/images/apple-cake.jpg /images/apple-pie.jpg;\n"
+    )

@@ -1,15 +1,18 @@
 import os
 import re
 import shutil
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 
 import pytest
 from inifile import IniFile
 from lektor import metaformat
 from lektor.builder import Builder
 from lektor.context import Context
+from lektor.pluginsystem import get_plugin
 from lektor.project import Project
 from lektor.reporter import BufferReporter
+
+from lektor_redirect import RedirectPlugin
 
 
 @pytest.fixture(scope="session")
@@ -25,7 +28,16 @@ def tmp_site_dir(site_dir_src, tmp_path):
 
 
 @pytest.fixture
-def site_dir(request, site_dir_src):
+def project_url():
+    return None
+
+
+@pytest.fixture
+def site_dir(request, site_dir_src, project_url):
+    if project_url is not None:
+        with request.getfixturevalue("open_site_config")() as inifile:
+            inifile["project.url"] = project_url
+
     if "tmp_site_dir" in request.fixturenames:
         site_dir = request.getfixturevalue("tmp_site_dir")
     else:
@@ -36,6 +48,14 @@ def site_dir(request, site_dir_src):
 @pytest.fixture
 def env(site_dir):
     return Project.from_path(site_dir).make_env(load_plugins=False)
+
+
+@pytest.fixture
+def plugin(env):
+    # Load our plugin
+    env.plugin_controller.instanciate_plugin("redirect", RedirectPlugin)
+    env.plugin_controller.emit("setup-env")
+    return get_plugin(RedirectPlugin, env)
 
 
 @pytest.fixture
@@ -104,22 +124,19 @@ def open_site_config(tmp_site_dir):
 
 
 @pytest.fixture
+def redirect_map_disabled(open_config_file):
+    with open_config_file() as inifile:
+        with suppress(KeyError):
+            del inifile["redirect.map_file"]
+
+
+@pytest.fixture
 def set_redirect_from(open_contents_lr):
     def set_redirect_from(path, url_paths):
         with open_contents_lr(path) as data:
             data["redirect_from"] = "\n".join(url_paths)
 
     return set_redirect_from
-
-
-@pytest.fixture
-def delete_page(tmp_site_dir):
-    def delete_page(path):
-        path = path.lstrip("/")
-        filename = tmp_site_dir / "content" / path / "contents.lr"
-        os.unlink(filename)
-
-    return delete_page
 
 
 @pytest.fixture

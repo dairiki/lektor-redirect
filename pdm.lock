@@ -5,7 +5,7 @@
 groups = ["default", "dev", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:9426f5bece2ff9e9861dcf9d779dfdf430926a73375a58259209483f4141c47a"
+content_hash = "sha256:82543837289be01b2d720ab2555491a3902f46073830f3c4ac4fbea798b4d4e7"
 
 [[metadata.targets]]
 requires_python = ">=3.8"
@@ -518,6 +518,17 @@ dependencies = [
 files = [
     {file = "Lektor-3.3.11-py3-none-any.whl", hash = "sha256:a5443b777d478ffaa4a5fadc022c8e17361002487f2051e5f47e43ab9130cdea"},
     {file = "Lektor-3.3.11.tar.gz", hash = "sha256:a6dff5eb54c3e0ed1b3ddb6ac540112391541178ae420a1c2a2704e55afe17aa"},
+]
+
+[[package]]
+name = "lektorlib"
+version = "1.2.1"
+requires_python = ">=3.7"
+summary = "A few bits which are potentially useful to developers of Lektor plugins"
+groups = ["default"]
+files = [
+    {file = "lektorlib-1.2.1-py3-none-any.whl", hash = "sha256:450a60a8778698c8515ab5d35f4d7fd097649420cf669357abf8a89c6a2be19e"},
+    {file = "lektorlib-1.2.1.tar.gz", hash = "sha256:1286a9d4818f8ca9bfa9a3e70a7cbd271c9f919dbee48eb3b4a3d123401d749f"},
 ]
 
 [[package]]
