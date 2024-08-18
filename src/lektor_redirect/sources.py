@@ -121,8 +121,10 @@ class Redirect(_VirtualSourceBase):
             return  # ignore assets
 
         plugin = _get_redirect_plugin(source.pad.env)
-        for redirect_url in plugin.get_redirect_urls(source):
-            yield cls(source, redirect_url)
+        template = plugin.redirect_template
+        if template:
+            for redirect_url in plugin.get_redirect_urls(source):
+                yield cls(source, redirect_url)
 
     class BuildProgram(LektorBuildProgram):  # type: ignore[misc]
         def produce_artifacts(self) -> None:
@@ -139,10 +141,10 @@ class Redirect(_VirtualSourceBase):
             self.declare_artifact(artifact_name, sources=sources)
 
         def build_artifact(self, artifact: Artifact) -> None:
-            source = self.source
             plugin = _get_redirect_plugin(self.build_state.env)
             template = plugin.redirect_template
-            artifact.render_template_into(template, this=source)
+            if template:
+                artifact.render_template_into(template, this=self.source)
 
 
 _HASH_BYTES: Final = (sys.hash_info.width + 7) // 8

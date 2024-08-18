@@ -27,7 +27,6 @@ from .util import normalize_url_path, walk_records
 
 PLUGIN_ID = "redirect"
 
-DEFAULT_TEMPLATE = "redirect.html"
 DEFAULT_REDIRECT_FROM_FIELD = "redirect_from"
 
 
@@ -55,7 +54,7 @@ class RedirectPlugin(Plugin):  # type: ignore[misc]
     @property
     def redirect_template(self) -> str | None:
         inifile: IniFile = self.get_config()
-        return inifile.get("redirect.template", DEFAULT_TEMPLATE)
+        return inifile.get("redirect.template")
 
     @property
     def redirect_map_url(self) -> str | None:

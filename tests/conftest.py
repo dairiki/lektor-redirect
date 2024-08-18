@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
-from contextlib import contextmanager, ExitStack, suppress
+from contextlib import contextmanager, ExitStack
 from pathlib import Path
 from typing import (
     Callable,
@@ -161,8 +161,7 @@ def open_site_config(tmp_site_dir: Path) -> OpenSiteConfigFixture:
 @pytest.fixture
 def redirect_map_disabled(open_config_file: OpenConfigFileFixture) -> None:
     with open_config_file() as inifile:
-        with suppress(KeyError):
-            del inifile["redirect.map_file"]
+        inifile.pop("redirect.map_file", None)
 
 
 SetRedirectFromFixture = Callable[[str, Iterable[str]], None]

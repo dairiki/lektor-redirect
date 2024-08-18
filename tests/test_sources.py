@@ -125,6 +125,17 @@ class TestRedirect:
         assert set(map(attrgetter("url_path"), redirects)) == set(url_paths)
 
     @pytest.mark.usefixtures("plugin")
+    def test_generator_disabled_if_no_template(
+        self, pad: Pad, open_config_file: OpenConfigFileFixture
+    ) -> None:
+        with open_config_file() as inifile:
+            inifile.pop("redirect.template", None)
+
+        source = pad.get("/projects")
+        redirects = list(Redirect._generator(source))
+        assert len(redirects) == 0
+
+    @pytest.mark.usefixtures("plugin")
     def test_generator_ignores_redirect_to_self(
         self,
         pad: Pad,

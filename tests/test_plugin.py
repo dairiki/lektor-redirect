@@ -11,7 +11,7 @@ from lektor_redirect.exceptions import (
     RedirectShadowsExistingRecordException,
     RedirectToSelfException,
 )
-from lektor_redirect.plugin import DEFAULT_TEMPLATE, RedirectIndex, RedirectPlugin
+from lektor_redirect.plugin import RedirectIndex, RedirectPlugin
 from lektor_redirect.sources import Redirect, RedirectMap
 
 from .conftest import (
@@ -41,15 +41,19 @@ class TestRedirectPlugin:
             inifile["redirect.redirect_from_field"] = "old_urls"
         assert plugin.redirect_from_field == "old_urls"
 
-    def test_redirect_template(self, plugin: RedirectPlugin) -> None:
-        assert plugin.redirect_template == DEFAULT_TEMPLATE
-
-    def test_redirect_template_from_config(
+    def test_redirect_template(
         self, plugin: RedirectPlugin, open_config_file: OpenConfigFileFixture
     ) -> None:
         with open_config_file() as inifile:
             inifile["redirect.template"] = "custom.html"
         assert plugin.redirect_template == "custom.html"
+
+    def test_redirect_template_none(
+        self, plugin: RedirectPlugin, open_config_file: OpenConfigFileFixture
+    ) -> None:
+        with open_config_file() as inifile:
+            inifile.pop("redirect.template", None)
+        assert plugin.redirect_template is None
 
     @pytest.mark.parametrize(
         "map_file, map_url",
