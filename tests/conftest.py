@@ -3,7 +3,7 @@ from __future__ import annotations
 import os
 import re
 import shutil
-from contextlib import contextmanager, suppress
+from contextlib import contextmanager, ExitStack, suppress
 from pathlib import Path
 from typing import (
     Callable,
@@ -97,7 +97,12 @@ def builder(pad: Pad, tmp_path: Path) -> Builder:
 
 @pytest.fixture
 def build_state(builder: Builder) -> BuildState:
-    with builder.new_build_state() as build_state:
+    with ExitStack() as stack:
+        build_state = builder.new_build_state()
+        # BuildState does not always support the ContextManager interface
+        # (e.g. lektor==3.4.0b12)
+        if hasattr(build_state, "__exit__"):
+            build_state = stack.enter_context(build_state)
         yield build_state
 
 

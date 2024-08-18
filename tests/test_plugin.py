@@ -105,8 +105,8 @@ class TestRedirectPlugin:
         assert RedirectMap._generator in env.custom_generators
         assert env.virtual_sources["redirect"] == Redirect._vpath_resolver
         assert env.virtual_sources["redirect-map"] == RedirectMap._vpath_resolver
-        assert Redirect._resolve_url in env.custom_url_resolvers
-        assert RedirectMap._resolve_url in env.custom_url_resolvers
+        assert Redirect._resolve_url_path in env.custom_url_resolvers
+        assert RedirectMap._resolve_url_path in env.custom_url_resolvers
 
     def test_on_setup_env_fails_if_alts_enabled(
         self, plugin: RedirectPlugin, open_site_config: OpenSiteConfigFixture

@@ -166,22 +166,22 @@ class TestRedirect:
         ],
     )
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url(
+    def test_resolve_url_path(
         self, source: Record, url_path: str, redirect_path: str
     ) -> None:
-        redirect = Redirect._resolve_url(source, url_path)
+        redirect = Redirect._resolve_url_path(source, url_path)
         assert redirect is not None
         assert redirect.path == redirect_path
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_fails(self, pad: Pad) -> None:
-        redirect = Redirect._resolve_url(pad.root, ["no-such-redir"])
+    def test_resolve_url_path_fails(self, pad: Pad) -> None:
+        redirect = Redirect._resolve_url_path(pad.root, ["no-such-redir"])
         assert redirect is None
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_disabled(self, pad: Pad) -> None:
+    def test_resolve_url_path_disabled(self, pad: Pad) -> None:
         with Redirect.disable_url_resolution():
-            redirect = Redirect._resolve_url(pad.root, ["details"])
+            redirect = Redirect._resolve_url_path(pad.root, ["details"])
         assert redirect is None
 
 
@@ -217,21 +217,23 @@ class TestRedirectMap:
         assert list(RedirectMap._generator(pad.root)) == []
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url(
+    def test_resolve_url_path(
         self, pad: Pad, open_config_file: OpenConfigFileFixture
     ) -> None:
         with open_config_file() as inifile:
             inifile["redirect.map_file"] = ".redirect.map"
-        redirect_map = RedirectMap._resolve_url(pad.root, [".redirect.map"])
+        redirect_map = RedirectMap._resolve_url_path(pad.root, [".redirect.map"])
         assert redirect_map == RedirectMap(pad.root, "/.redirect.map")
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_fails(
+    def test_resolve_url_path_fails(
         self, pad: Pad, open_config_file: OpenConfigFileFixture
     ) -> None:
         with open_config_file() as inifile:
             inifile["redirect.map_file"] = ".redirect.map"
-        redirect_map = RedirectMap._resolve_url(pad.root, ["/subdir/.redirect.map"])
+        redirect_map = RedirectMap._resolve_url_path(
+            pad.root, ["/subdir/.redirect.map"]
+        )
         assert redirect_map is None
 
 

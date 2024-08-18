@@ -44,7 +44,7 @@ source = "scm"
 
 [tool.pdm.dev-dependencies]
 dev = [
-    "lektor>=3.3.11",
+    "lektor>=3.4.0b12",
     "ruff>=0.6.1",
     "mypy>=1.11.1",
 ]

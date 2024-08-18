@@ -64,7 +64,7 @@ class _VirtualSourceBase(VirtualSourceObject):  # type: ignore[misc]
         env.add_build_program(cls, cls.BuildProgram)
         env.generator(cls._generator)
         env.virtualpathresolver(cls.VPATH_PREFIX)(cls._vpath_resolver)
-        env.urlresolver(cls._resolve_url)
+        env.urlresolver(cls._resolve_url_path)
 
     @classmethod
     def _vpath_resolver(cls, record: Record, pieces: Sequence[str]) -> Self:
@@ -78,7 +78,7 @@ class _VirtualSourceBase(VirtualSourceObject):  # type: ignore[misc]
         raise NotImplementedError
 
     @classmethod
-    def _resolve_url(cls, record: Record, url_path: Sequence[str]) -> Self | None:
+    def _resolve_url_path(cls, record: Record, url_path: Sequence[str]) -> Self | None:
         raise NotImplementedError
 
 
@@ -104,7 +104,7 @@ class Redirect(_VirtualSourceBase):
             cls._disable_url_resolution.reset(token)
 
     @classmethod
-    def _resolve_url(cls, record: Record, url_path: Sequence[str]) -> Self | None:
+    def _resolve_url_path(cls, record: Record, url_path: Sequence[str]) -> Self | None:
         if not cls._disable_url_resolution.get():
             pad = record.pad
             plugin = _get_redirect_plugin(pad.env)
@@ -164,7 +164,7 @@ class RedirectMap(_VirtualSourceBase):
         return h.hexdigest()
 
     @classmethod
-    def _resolve_url(cls, record: Record, url_path: Sequence[str]) -> Self | None:
+    def _resolve_url_path(cls, record: Record, url_path: Sequence[str]) -> Self | None:
         if record.path == "/":
             pad = record.pad
             plugin = _get_redirect_plugin(pad.env)
