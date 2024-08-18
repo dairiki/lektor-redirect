@@ -142,8 +142,7 @@ class Redirect(_VirtualSourceBase):
             source = self.source
             plugin = _get_redirect_plugin(self.build_state.env)
             template = plugin.redirect_template
-            values = {"target": source.target}
-            artifact.render_template_into(template, this=source, values=values)
+            artifact.render_template_into(template, this=source)
 
 
 _HASH_BYTES: Final = (sys.hash_info.width + 7) // 8

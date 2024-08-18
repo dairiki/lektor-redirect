@@ -288,9 +288,8 @@ class TestRedirectBuildProgram:
     ) -> None:
         artifact = mock.Mock(name="artifact")
         build_program.build_artifact(artifact)
-        values = {"target": source.record}
         assert artifact.mock_calls == [
-            mock.call.render_template_into("redirect.html", this=source, values=values),
+            mock.call.render_template_into("redirect.html", this=source)
         ]
 
     def test_build_artifact_records_dependency(

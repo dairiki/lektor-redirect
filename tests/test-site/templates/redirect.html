@@ -1,7 +1,7 @@
 {% extends "layout.html" %}
-{% set location_abs = target|url(absolute=True) %}
-{% set location_ext = target|url(external=True) %}
-{% set location_rel = target|url %}
+{% set location_abs = this.target|url(absolute=True) %}
+{% set location_ext = this.target|url(external=True) %}
+{% set location_rel = this.target|url %}
 {% block head_meta -%}
   <link rel="canonical" href="{{ location_ext }}">
   <meta http-equiv="refresh" content="0; url={{ location_abs }}">
