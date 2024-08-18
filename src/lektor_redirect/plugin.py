@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Iterator, Mapping, MutableMapping
 from urllib.parse import urljoin
 
+from inifile import IniFile
 from lektor.builder import Builder
 from lektor.db import Pad, Record
 from lektor.environment import Environment
@@ -48,19 +49,17 @@ class RedirectPlugin(Plugin):  # type: ignore[misc]
 
     @property
     def redirect_from_field(self) -> str:
-        inifile = self.get_config()
-        return inifile.get(  # type: ignore[no-any-return]
-            "redirect.redirect_from_field", DEFAULT_REDIRECT_FROM_FIELD
-        )
+        inifile: IniFile = self.get_config()
+        return inifile.get("redirect.redirect_from_field", DEFAULT_REDIRECT_FROM_FIELD)
 
     @property
     def redirect_template(self) -> str | None:
-        inifile = self.get_config()
-        return inifile.get("redirect.template", DEFAULT_TEMPLATE)  # type: ignore[no-any-return]
+        inifile: IniFile = self.get_config()
+        return inifile.get("redirect.template", DEFAULT_TEMPLATE)
 
     @property
     def redirect_map_url(self) -> str | None:
-        inifile = self.get_config()
+        inifile: IniFile = self.get_config()
         map_file = inifile.get("redirect.map_file")
         if map_file is None:
             return None

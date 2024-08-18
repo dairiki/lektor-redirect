@@ -5,7 +5,7 @@
 groups = ["default", "dev", "test"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:491144cc167b1b15fa0412355fbee6f339ff4c3bfed65ba5967700d2997b93d7"
+content_hash = "sha256:b89ecc4d9b8edb8ab6e44085aeb487c57f2c64fcf0771ba7da0702ab3443cfe6"
 
 [[metadata.targets]]
 requires_python = ">=3.8"
@@ -820,6 +820,17 @@ dependencies = [
 files = [
     {file = "typeguard-4.0.1-py3-none-any.whl", hash = "sha256:43f55cc9953f26dae362adb973b6c9ad6b97bfffcc6757277912eddd5cfa345b"},
     {file = "typeguard-4.0.1.tar.gz", hash = "sha256:db35142d1f92fc8c1b954e5cc03b57810428f9cd4e4604647bdf5764fc5bbba9"},
+]
+
+[[package]]
+name = "types-inifile"
+version = "0.4.0.20240310"
+requires_python = ">=3.8"
+summary = "Typing stubs for inifile"
+groups = ["dev"]
+files = [
+    {file = "types-inifile-0.4.0.20240310.tar.gz", hash = "sha256:76b719f0e2288b30f39b9d0e71688bd6699382c4e34b083eabc6e03f49ac8737"},
+    {file = "types_inifile-0.4.0.20240310-py3-none-any.whl", hash = "sha256:0ceb6bdcdaffab419c9cd7ca6f55dbf18b30c2c13502b92c8f56fc9800e57192"},
 ]
 
 [[package]]

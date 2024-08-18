@@ -50,6 +50,7 @@ dev = [
     "lektor>=3.4.0b12",
     "ruff>=0.6.1",
     "mypy>=1.11.1",
+    "types-inifile>=0.4.0.20240310",
 ]
 test = [
     "pytest>=8.3.2",
@@ -117,7 +118,6 @@ strict = true
 
 [[tool.mypy.overrides]]
 module = [
-    "inifile",
     "lektor.*",
 ]
 ignore_missing_imports = true
