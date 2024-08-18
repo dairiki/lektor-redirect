@@ -1,36 +1,52 @@
+from __future__ import annotations
+
 import io
 import os
 import re
+from contextlib import contextmanager
 from operator import attrgetter
+from typing import Iterable, Iterator
 from unittest import mock
 
 import pytest
+from lektor.builder import BuildState
+from lektor.context import Context
+from lektor.db import Pad, Record
+from lektor.environment import Environment
 
 from lektor_redirect.sources import Redirect, RedirectMap
 
+from .conftest import (
+    OpenConfigFileFixture,
+    ReporterCaptureFixture,
+    SetRedirectFromFixture,
+)
+
 
 @pytest.fixture
-def source(source_path, pad):
-    return pad.get(source_path)
+def source(source_path: str, pad: Pad) -> Record:
+    record = pad.get(source_path)
+    assert isinstance(record, Record)
+    return record
 
 
 class TestRedirect:
     @pytest.fixture
-    def record_path(self):
+    def record_path(self) -> str:
         return "/about"
 
     @pytest.fixture
-    def url_path(self):
+    def url_path(self) -> str:
         return "/foo/"
 
     @pytest.fixture
-    def record(self, pad, record_path):
+    def record(self, pad: Pad, record_path: str) -> Record:
         record = pad.get(record_path)
-        assert record is not None
+        assert isinstance(record, Record)
         return record
 
     @pytest.fixture
-    def redirect(self, record, url_path):
+    def redirect(self, record: Record, url_path: str) -> Redirect:
         return Redirect(record, url_path)
 
     @pytest.mark.parametrize(
@@ -40,36 +56,36 @@ class TestRedirect:
             ("/about", "/see/other/", "/about@redirect/see/other"),
         ],
     )
-    def test_path(self, redirect, redirect_path):
+    def test_path(self, redirect: Redirect, redirect_path: str) -> None:
         assert redirect.path == redirect_path
 
-    def test_target(self, redirect, record):
+    def test_target(self, redirect: Redirect, record: Record) -> None:
         assert redirect.target is record
 
-    def test_eq_self(self, redirect):
+    def test_eq_self(self, redirect: Record) -> None:
         assert redirect == redirect
         assert not (redirect != redirect)
         assert hash(redirect) == hash(redirect)
 
-    def test_eq_copy(self, redirect):
+    def test_eq_copy(self, redirect: Record) -> None:
         other = Redirect(redirect.parent, redirect.url_path)
         assert redirect == other
         assert not (redirect != other)
         assert hash(redirect) == hash(other)
 
-    def test_ne_copy(self, redirect):
+    def test_ne_copy(self, redirect: Record) -> None:
         other = Redirect(redirect.parent, redirect.url_path + "other/")
         assert redirect != other
         assert not (redirect == other)
         assert hash(redirect) != hash(other)
 
-    def test_ne_object(self, redirect):
+    def test_ne_object(self, redirect: Record) -> None:
         other = object()
         assert redirect != other
         assert not (redirect == other)
         assert hash(redirect) != hash(other)
 
-    def test_repr(self, redirect):
+    def test_repr(self, redirect: Redirect) -> None:
         assert re.fullmatch(
             r'Redirect\(<Page .*path=(["\'])/about\1.*>, (["\'])/foo/\2\)',
             repr(redirect),
@@ -83,7 +99,9 @@ class TestRedirect:
             ("/", "/foo", "/@redirect/foo/"),
         ],
     )
-    def test_vpath_resolver(self, env, source_path, url_path, redirect_path):
+    def test_vpath_resolver(
+        self, env: Environment, source_path: str, url_path: str, redirect_path: str
+    ) -> None:
         Redirect._setup_env(env)
         pad = env.new_pad()
         source = pad.get(source_path)
@@ -99,13 +117,17 @@ class TestRedirect:
         ],
     )
     @pytest.mark.usefixtures("plugin")
-    def test_generator(self, pad, source, url_paths):
+    def test_generator(
+        self, pad: Pad, source: Record, url_paths: Iterable[str]
+    ) -> None:
         redirects = list(Redirect._generator(source))
         assert all(redirect.parent is source for redirect in redirects)
         assert set(map(attrgetter("url_path"), redirects)) == set(url_paths)
 
     @pytest.mark.usefixtures("plugin")
-    def test_generator_ignores_redirect_to_self(self, pad, set_redirect_from):
+    def test_generator_ignores_redirect_to_self(
+        self, pad: Pad, set_redirect_from: SetRedirectFromFixture
+    ) -> None:
         set_redirect_from(
             "/about/more-detail", ["/about", "/about/", "about-this.html"]
         )
@@ -117,7 +139,12 @@ class TestRedirect:
         ]
 
     @pytest.mark.usefixtures("plugin")
-    def test_generator_skips_conflicts(self, pad, set_redirect_from, captured_reports):
+    def test_generator_skips_conflicts(
+        self,
+        pad: Pad,
+        set_redirect_from: SetRedirectFromFixture,
+        captured_reports: ReporterCaptureFixture,
+    ) -> None:
         set_redirect_from("/about", ["/about/more-detail"])
         pad.cache.flush()
         source = pad.get("/about")
@@ -126,7 +153,7 @@ class TestRedirect:
         assert captured_reports.message_matches(r"Invalid redirect\b.*\bconflicts with")
 
     @pytest.mark.usefixtures("plugin")
-    def test_generator_ignores_assets(self, pad):
+    def test_generator_ignores_assets(self, pad: Pad) -> None:
         asset = pad.get_asset("/static/style.css")
         assert list(Redirect._generator(asset)) == []
 
@@ -139,17 +166,20 @@ class TestRedirect:
         ],
     )
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url(self, source, url_path, redirect_path):
+    def test_resolve_url(
+        self, source: Record, url_path: str, redirect_path: str
+    ) -> None:
         redirect = Redirect._resolve_url(source, url_path)
+        assert redirect is not None
         assert redirect.path == redirect_path
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_fails(self, pad):
+    def test_resolve_url_fails(self, pad: Pad) -> None:
         redirect = Redirect._resolve_url(pad.root, ["no-such-redir"])
         assert redirect is None
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_disabled(self, pad):
+    def test_resolve_url_disabled(self, pad: Pad) -> None:
         with Redirect.disable_url_resolution():
             redirect = Redirect._resolve_url(pad.root, ["details"])
         assert redirect is None
@@ -158,10 +188,10 @@ class TestRedirect:
 @pytest.mark.usefixtures("plugin")
 class TestRedirectMap:
     @pytest.fixture
-    def source(self, pad):
+    def source(self, pad: Pad) -> RedirectMap:
         return RedirectMap(pad.root, "/.redirect.map")
 
-    def test_redirect_map(self, source):
+    def test_redirect_map(self, source: RedirectMap) -> None:
         assert source.redirect_map == {
             "/about/info/": "/about/more-detail/",
             "/about/projects.html": "/projects/",
@@ -169,12 +199,12 @@ class TestRedirectMap:
             "/images/apple-cake.jpg": "/images/apple-pie.jpg",
         }
 
-    def test_get_checksum(self, source, mocker):
-        path_cache = mocker.Mock(name="path_cache")
+    def test_get_checksum(self, source: RedirectMap) -> None:
+        path_cache = mock.Mock(name="path_cache")
         checksum = source.get_checksum(path_cache)
         assert checksum == "baddf4094f10738328ab2c09c4a44d27"
 
-    def test_generator(self, pad, open_config_file):
+    def test_generator(self, pad: Pad, open_config_file: OpenConfigFileFixture) -> None:
         with open_config_file() as inifile:
             inifile["redirect.map_file"] = ".redirect.map"
         assert list(RedirectMap._generator(pad.root)) == [
@@ -183,18 +213,22 @@ class TestRedirectMap:
         assert list(RedirectMap._generator(pad.get("/about"))) == []
 
     @pytest.mark.usefixtures("redirect_map_disabled")
-    def test_generator_disabled(self, pad):
+    def test_generator_disabled(self, pad: Pad) -> None:
         assert list(RedirectMap._generator(pad.root)) == []
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url(self, pad, open_config_file):
+    def test_resolve_url(
+        self, pad: Pad, open_config_file: OpenConfigFileFixture
+    ) -> None:
         with open_config_file() as inifile:
             inifile["redirect.map_file"] = ".redirect.map"
         redirect_map = RedirectMap._resolve_url(pad.root, [".redirect.map"])
         assert redirect_map == RedirectMap(pad.root, "/.redirect.map")
 
     @pytest.mark.usefixtures("plugin")
-    def test_resolve_url_fails(self, pad, open_config_file):
+    def test_resolve_url_fails(
+        self, pad: Pad, open_config_file: OpenConfigFileFixture
+    ) -> None:
         with open_config_file() as inifile:
             inifile["redirect.map_file"] = ".redirect.map"
         redirect_map = RedirectMap._resolve_url(pad.root, ["/subdir/.redirect.map"])
@@ -204,40 +238,53 @@ class TestRedirectMap:
 @pytest.mark.usefixtures("context", "plugin")
 class TestRedirectBuildProgram:
     @pytest.fixture
-    def source(self, pad):
+    def source(self, pad: Pad) -> Redirect:
         return Redirect(pad.get("/about"), "/details/")
 
     @pytest.fixture
-    def build_program(self, source, build_state):
+    def build_program(
+        self, source: Redirect, build_state: BuildState
+    ) -> Redirect.BuildProgram:
         return Redirect.BuildProgram(source, build_state)
 
     @pytest.fixture
-    def img_source(self, pad):
+    def img_source(self, pad: Pad) -> Redirect:
         return Redirect(pad.get("/images/apple-pie.jpg"), "/images/apple-cake.jpg")
 
     @pytest.fixture
-    def declare_artifact(self, build_program, mocker):
-        return mocker.patch.object(build_program, "declare_artifact")
+    def declare_artifact(
+        self, build_program: Redirect.BuildProgram
+    ) -> Iterator[mock.Mock]:
+        with mock.patch.object(build_program, "declare_artifact") as patched:
+            yield patched
 
-    def test_produce_artifacts(self, build_program, source, declare_artifact):
+    def test_produce_artifacts(
+        self,
+        build_program: Redirect.BuildProgram,
+        source: Redirect,
+        declare_artifact: mock.Mock,
+    ) -> None:
         build_program.produce_artifacts()
         sources = list(source.parent.iter_source_filenames())
         assert declare_artifact.mock_calls == [
             mock.call("/details/index.html", sources=sources)
         ]
 
-    def test_produce_non_html_artifacts(self, img_source, build_state, mocker):
+    def test_produce_non_html_artifacts(
+        self, img_source: Record, build_state: BuildState
+    ) -> None:
         build_program = Redirect.BuildProgram(img_source, build_state)
-        declare_artifact = mocker.patch.object(build_program, "declare_artifact")
-
-        build_program.produce_artifacts()
-        sources = list(img_source.parent.iter_source_filenames())
+        with mock.patch.object(build_program, "declare_artifact") as declare_artifact:
+            build_program.produce_artifacts()
+            sources = list(img_source.parent.iter_source_filenames())
         assert declare_artifact.mock_calls == [
             mock.call("/images/apple-cake.jpg/index.html", sources=sources),
         ]
 
-    def test_build_artifact(self, source, build_program, mocker):
-        artifact = mocker.Mock(name="artifact")
+    def test_build_artifact(
+        self, source: Record, build_program: Redirect.BuildProgram
+    ) -> None:
+        artifact = mock.Mock(name="artifact")
         build_program.build_artifact(artifact)
         values = {"target": source.record}
         assert artifact.mock_calls == [
@@ -245,10 +292,14 @@ class TestRedirectBuildProgram:
         ]
 
     def test_build_artifact_records_dependency(
-        self, source, build_program, env, context, mocker
-    ):
+        self,
+        source: Record,
+        build_program: Redirect.BuildProgram,
+        env: Environment,
+        context: Context,
+    ) -> None:
         config_filename = os.path.join(env.root_path, "configs/redirect.ini")
-        artifact = mocker.Mock(name="artifact")
+        artifact = mock.Mock(name="artifact")
         build_program.build_artifact(artifact)
         assert config_filename in context.referenced_dependencies
 
@@ -256,29 +307,36 @@ class TestRedirectBuildProgram:
 @pytest.mark.usefixtures("plugin")
 class TestRedirectMapBuildProgram:
     @pytest.fixture
-    def source(self, pad):
+    def source(self, pad: Pad) -> RedirectMap:
         return RedirectMap(pad.root, "/.redirect.map")
 
     @pytest.fixture
-    def build_program(self, source, build_state):
+    def build_program(
+        self, source: RedirectMap, build_state: BuildState
+    ) -> RedirectMap.BuildProgram:
         return RedirectMap.BuildProgram(source, build_state)
 
-    def test_produce_artifacts(self, build_program, mocker):
+    def test_produce_artifacts(self, build_program: RedirectMap.BuildProgram) -> None:
         source = build_program.source
-        declare_artifact = mocker.patch.object(build_program, "declare_artifact")
-
-        build_program.produce_artifacts()
-
         sources = list(source.record.iter_source_filenames())
+
+        with mock.patch.object(build_program, "declare_artifact") as declare_artifact:
+            build_program.produce_artifacts()
+
         assert declare_artifact.mock_calls == [
             mock.call("/.redirect.map", sources=sources)
         ]
 
-    def test_build_artifact(self, source, build_program, mocker):
+    def test_build_artifact(
+        self, source: RedirectMap, build_program: RedirectMap.BuildProgram
+    ) -> None:
         buf = io.StringIO()
-        mocker.patch.object(buf, "close")
-        artifact = mocker.Mock(name="artifact")
-        artifact.open.return_value = buf
+
+        @contextmanager
+        def artifact_open(mode: str) -> Iterator[io.StringIO]:
+            yield buf
+
+        artifact = mock.Mock(name="artifact", open=artifact_open)
 
         build_program.build_artifact(artifact)
 

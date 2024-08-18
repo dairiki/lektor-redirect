@@ -1,12 +1,13 @@
 import posixpath
 import re
 from collections import deque
+from typing import Iterator
 
-from lektor.db import Page
+from lektor.db import Pad, Page, Record
 from lektorlib.context import disable_dependency_recording
 
 
-def normalize_url_path(record, url_path):
+def normalize_url_path(record: Record, url_path: str) -> str:
     """Normalize url_path.
 
     Returns a normalized, absolute url path.
@@ -23,15 +24,15 @@ def normalize_url_path(record, url_path):
     return url_path
 
 
-def nginx_quote_for_map(str):
+def nginx_quote_for_map(s: str) -> str:
     """Quote string, if necessary, for nginx map file."""
     quot = ""
-    if re.search(r"[ \"'{};]", str):
+    if re.search(r"[ \"'{};]", s):
         quot = '"'
-        if quot in str and "'" not in str:
+        if quot in s and "'" not in s:
             quot = "'"
 
-    escaped = re.sub(rf"[{quot}$\\]", r"\\\g<0>", str)
+    escaped = re.sub(rf"[{quot}$\\]", r"\\\g<0>", s)
     if not quot and re.match(r"(default|hostnames|include|volatile)\b", escaped):
         # Nginx map "special parameters" must be escaped to prevent magic
         # See https://nginx.org/en/docs/http/ngx_http_map_module.html#map
@@ -40,7 +41,7 @@ def nginx_quote_for_map(str):
     return f"{quot}{escaped}{quot}"
 
 
-def walk_records(pad):
+def walk_records(pad: Pad) -> Iterator[Record]:
     """Iterate over all records in the Lektor DB."""
     with disable_dependency_recording():
         records = deque([pad.root])
