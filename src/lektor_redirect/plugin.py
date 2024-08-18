@@ -14,8 +14,8 @@ from lektor.pluginsystem import get_plugin, Plugin
 from lektor.reporter import reporter
 
 from .exceptions import (
+    AmbiguousRedirectException,
     InvalidRedirectException,
-    RedirectConflictException,
     RedirectShadowsExistingRecordException,
     RedirectToSelfException,
 )
@@ -179,13 +179,25 @@ class RedirectIndex(Mapping[str, Record]):
 
         for conflict in self._redirects.get(url_path, ()):
             if conflict != target:
-                raise RedirectConflictException(url_path, target, conflict)
+                raise AmbiguousRedirectException(url_path, target, conflict)
 
     def is_conflict(
         self, url_path: str, target: Record, warn_on_conflict: bool = True
     ) -> bool:
+        """Check if redirect conflicts with another declared redirect.
+
+        If there is no conflict, returns `False`.
+
+        If the redirect is ambiguous, or conflicts with another record, a warning
+        is issued via Lektor's reporter, and `True` is returned.
+
+        """
         try:
             self.raise_on_conflict(url_path, target)
+        except RedirectToSelfException as ex:
+            if warn_on_conflict and reporter.verbosity >= 1:
+                reporter.report_generic(f"Ignoring redirect: {ex}")
+            return True
         except InvalidRedirectException as ex:
             if warn_on_conflict:
                 reporter.report_generic(f"Invalid redirect: {ex}")

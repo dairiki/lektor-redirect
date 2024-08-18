@@ -45,7 +45,7 @@ class RedirectShadowsExistingRecordException(ConflictingRedirectException):
         return f"redirect url conflicts with existing record {self.conflict!r}"
 
 
-class RedirectConflictException(ConflictingRedirectException):
+class AmbiguousRedirectException(ConflictingRedirectException):
     """Multiple records declare a redirect from the same URL."""
 
     @property

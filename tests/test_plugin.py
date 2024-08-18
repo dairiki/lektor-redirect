@@ -7,7 +7,7 @@ from lektor.db import Pad
 from lektor.environment import Environment
 
 from lektor_redirect.exceptions import (
-    RedirectConflictException,
+    AmbiguousRedirectException,
     RedirectShadowsExistingRecordException,
     RedirectToSelfException,
 )
@@ -154,7 +154,7 @@ class TestRedirectIndex:
                 RedirectShadowsExistingRecordException,
             ),
             # Redirect conflicts with another redirect
-            ("/about/more-detail", "/about/projects.html", RedirectConflictException),
+            ("/about/more-detail", "/about/projects.html", AmbiguousRedirectException),
         ],
     )
     def test_raise_on_conflict(

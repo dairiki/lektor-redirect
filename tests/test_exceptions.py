@@ -5,18 +5,18 @@ import re
 from lektor.db import Pad
 
 from lektor_redirect.exceptions import (
-    RedirectConflictException,
+    AmbiguousRedirectException,
     RedirectShadowsExistingRecordException,
     RedirectToSelfException,
 )
 
 
-def test_RedirectConflictException_message(pad: Pad) -> None:
+def test_AmbiguousRedirectException_message(pad: Pad) -> None:
     expected = (
         r"./foo. => <Page .*\bpath=./.*>: "
         r"conflicts with redirect ./foo. => <.*/about.*>\Z"
     )
-    exc = RedirectConflictException("/foo", pad.root, pad.get("/about"))
+    exc = AmbiguousRedirectException("/foo", pad.root, pad.get("/about"))
     assert re.match(expected, exc.message())
 
 

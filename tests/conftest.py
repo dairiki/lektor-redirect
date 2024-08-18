@@ -193,3 +193,7 @@ class ReporterCaptureFixture(BufferReporter):  # type: ignore[misc]
 
     def message_matches(self, match: str | re.Pattern[str]) -> bool:
         return any(re.match(match, message) for message in self.get_generic_messages())
+
+    def __repr__(self) -> str:  # pragma: no cover
+        messages = self.get_generic_messages()
+        return f"<{self.__class__.__name__}: messages={messages!r}>"

@@ -126,17 +126,39 @@ class TestRedirect:
 
     @pytest.mark.usefixtures("plugin")
     def test_generator_ignores_redirect_to_self(
-        self, pad: Pad, set_redirect_from: SetRedirectFromFixture
+        self,
+        pad: Pad,
+        set_redirect_from: SetRedirectFromFixture,
+        captured_reports: ReporterCaptureFixture,
     ) -> None:
-        set_redirect_from(
-            "/about/more-detail", ["/about", "/about/", "about-this.html"]
-        )
+        set_redirect_from("/about", ["/about", "/about/", "about-this.html"])
         pad.cache.flush()
-        source = pad.get("/about/more-detail")
+        source = pad.get("/about")
         redirects = Redirect._generator(source)
-        assert list(map(attrgetter("url_path"), redirects)) == [
-            "/about/about-this.html"
-        ]
+        assert list(map(attrgetter("url_path"), redirects)) == ["/about-this.html"]
+        assert len(captured_reports.get_generic_messages()) == 0
+
+    @pytest.mark.parametrize("verbosity", [0, 1])
+    @pytest.mark.usefixtures("plugin")
+    def test_generator_ignores_redirect_to_self_issues_warning(
+        self,
+        pad: Pad,
+        set_redirect_from: SetRedirectFromFixture,
+        captured_reports: ReporterCaptureFixture,
+        verbosity: int,
+    ) -> None:
+        captured_reports.verbosity = verbosity
+        set_redirect_from("/about", ["/about", "/about/"])
+        pad.cache.flush()
+        source = pad.get("/about")
+        redirects = Redirect._generator(source)
+        assert list(redirects) == []
+        messages = captured_reports.get_generic_messages()
+        if verbosity >= 1:
+            assert len(messages) == 1
+            assert re.match(r"Ignoring redirect:.*\bredirect to self", messages[0])
+        else:
+            assert len(messages) == 0
 
     @pytest.mark.usefixtures("plugin")
     def test_generator_skips_conflicts(
