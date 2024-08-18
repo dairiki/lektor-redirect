@@ -1,5 +1,10 @@
 # lektor-redirect
 
+[![PyPI version](https://img.shields.io/pypi/v/lektor-redirect.svg)](https://pypi.org/project/lektor-redirect/)
+[![PyPI Supported Python Versions](https://img.shields.io/pypi/pyversions/lektor-redirect.svg)](https://pypi.python.org/pypi/lektor-redirect/)
+[![GitHub license](https://img.shields.io/github/license/dairiki/lektor-redirect)](https://github.com/dairiki/lektor-redirect/blob/master/LICENSE)
+[![GitHub Actions (Tests)](https://img.shields.io/github/actions/workflow/status/dairiki/lektor-redirect/ci.yml?branch=master&label=tests)](https://github.com/dairiki/lektor-redirect/)
+
 This plugin allows pages to specify alternative/old URLs which should
 redirect to their current location.
 
