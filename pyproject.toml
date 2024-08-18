@@ -29,6 +29,9 @@ dependencies = [
 ]
 requires-python = ">=3.8"
 
+[project.urls]
+Home = "https://github.com/dairiki/lektor-redirect"
+
 [project.entry-points."lektor.plugins"]
 redirect = "lektor_redirect:RedirectPlugin"
 
