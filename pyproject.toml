@@ -51,7 +51,6 @@ dev = [
 test = [
     "pytest>=8.3.2",
     "tox>=4.18.0",
-    "tox-pdm>=0.7.2",
 ]
 
 [tool.pdm.scripts]
