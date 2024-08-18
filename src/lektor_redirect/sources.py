@@ -17,9 +17,9 @@ from lektor.sourceobj import VirtualSourceObject
 
 from .util import nginx_quote_for_map, normalize_url_path
 
-if sys.version_info >= (3, 11):  # pragma: no cover
+if sys.version_info >= (3, 11):
     from typing import Self
-else:  # pragma: no cover
+else:
     from typing_extensions import Self
 
 if TYPE_CHECKING:
