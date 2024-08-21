@@ -66,7 +66,7 @@ to `test-post`, then:
   redirect the user to `/blog/first-post/`.
 
 - If redirect map generation is enabled, it will include an entry
-  mapping `/blog/test-post` to `/blog/first-post/`.
+  mapping `/blog/test-post/` to `/blog/first-post/`.
 
 ### Configuration File
 
