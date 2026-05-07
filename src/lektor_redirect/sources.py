@@ -3,10 +3,11 @@ from __future__ import annotations
 import hashlib
 import posixpath
 import sys
+from collections.abc import Iterator, Mapping, Sequence
 from contextlib import contextmanager
 from contextvars import ContextVar
 from functools import cached_property
-from typing import ClassVar, Final, Iterator, Mapping, Sequence, TYPE_CHECKING
+from typing import ClassVar, Final, TYPE_CHECKING
 
 from lektor.build_programs import BuildProgram as LektorBuildProgram
 from lektor.builder import Artifact, PathCache
@@ -46,7 +47,7 @@ class _VirtualSourceBase(VirtualSourceObject):  # type: ignore[misc]
 
     @property
     def path(self) -> str:
-        return f"{self.record.path}" f"@{self.VPATH_PREFIX}{self.url_path.rstrip('/')}"
+        return f"{self.record.path}@{self.VPATH_PREFIX}{self.url_path.rstrip('/')}"
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, _VirtualSourceBase):

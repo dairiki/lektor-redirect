@@ -3,9 +3,9 @@ from __future__ import annotations
 import io
 import os
 import re
+from collections.abc import Iterable, Iterator
 from contextlib import contextmanager
 from operator import attrgetter
-from typing import Iterable, Iterator
 from unittest import mock
 
 import pytest

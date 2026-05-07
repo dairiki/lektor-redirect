@@ -3,16 +3,10 @@ from __future__ import annotations
 import os
 import re
 import shutil
-from contextlib import contextmanager, ExitStack
+from collections.abc import Callable, Iterable, Iterator, MutableMapping
+from contextlib import AbstractContextManager, contextmanager, ExitStack
 from pathlib import Path
-from typing import (
-    Callable,
-    ContextManager,
-    Iterable,
-    Iterator,
-    MutableMapping,
-    TYPE_CHECKING,
-)
+from typing import TYPE_CHECKING
 
 import pytest
 from inifile import IniFile
@@ -106,7 +100,9 @@ def build_state(builder: Builder) -> BuildState:
         yield build_state
 
 
-OpenContentsLrFixture = Callable[[str], ContextManager[MutableMapping[str, str]]]
+OpenContentsLrFixture = Callable[
+    [str], AbstractContextManager[MutableMapping[str, str]]
+]
 
 
 @pytest.fixture
@@ -127,7 +123,7 @@ def open_contents_lr(tmp_site_dir: Path) -> OpenContentsLrFixture:
     return open_contents_lr
 
 
-OpenConfigFileFixture = Callable[[], ContextManager[IniFile]]
+OpenConfigFileFixture = Callable[[], AbstractContextManager[IniFile]]
 
 
 @pytest.fixture
@@ -143,7 +139,7 @@ def open_config_file(tmp_site_dir: Path) -> OpenConfigFileFixture:
     return open_config_file
 
 
-OpenSiteConfigFixture = Callable[[], ContextManager[IniFile]]
+OpenSiteConfigFixture = Callable[[], AbstractContextManager[IniFile]]
 
 
 @pytest.fixture

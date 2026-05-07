@@ -1,7 +1,7 @@
 import posixpath
 import re
 from collections import deque
-from typing import Iterator
+from collections.abc import Iterator
 
 from lektor.db import Pad, Page, Record
 from lektorlib.context import disable_dependency_recording

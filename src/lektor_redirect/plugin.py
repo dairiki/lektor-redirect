@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import weakref
 from collections import defaultdict
+from collections.abc import Iterator, Mapping, MutableMapping
 from contextlib import suppress
 from pathlib import Path
-from typing import Any, Iterator, Mapping, MutableMapping
+from typing import Any
 from urllib.parse import urljoin
 
 from inifile import IniFile
