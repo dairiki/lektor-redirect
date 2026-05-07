@@ -129,7 +129,7 @@ An simple example for such a template is:
 
 > [!TIP]
 > For the `url(external=true)` and `url(absolute=true)`
-  filters to work, a `[url][project config]` may need to be configured
+  filters to work, a [`url`][project config] may need to be configured
   for the project.
 
 When redirecting from URLs that do not end with `.html` or `.htm`, the redirect page
